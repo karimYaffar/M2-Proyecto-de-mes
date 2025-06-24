@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Predicción de Esperanza de Vida</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex items-center justify-center p-8">
+  <div class="w-full max-w-2xl bg-gray-800 rounded-lg shadow-lg p-6">
+    <h2 class="text-2xl font-bold mb-4 text-center">Predicción de Esperanza de Vida 🌍</h2>
+    <form id="formulario" onsubmit="predecir(event)" class="space-y-4">
+
+      <input name="HIV/AIDS" type="number" step="any" placeholder="HIV/AIDS" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="Income composition of resources" type="number" step="any" placeholder="Income composition of resources" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="Adult Mortality" type="number" step="any" placeholder="Adult Mortality" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="Schooling" type="number" step="any" placeholder="Schooling" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="under-five deaths" type="number" step="any" placeholder="under-five deaths" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="BMI" type="number" step="any" placeholder="BMI" class="w-full p-2 rounded bg-gray-700 text-white" required>
+
+      <button type="submit" id="submitBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+        Predecir
+      </button>
+
+      <div id="loadingSpinner" class="hidden mt-2 text-center text-gray-300">Procesando...</div>
+      <div id="resultado" class="mt-4 text-lg text-center"></div>
+    </form>
+  </div>
+
+  <script>
+    function predecir(event) {
+      event.preventDefault();
+
+      const form = document.getElementById('formulario');
+      const formData = new FormData(form);
+      const data = new URLSearchParams();
+      for (const pair of formData) {
+        data.append(pair[0], pair[1]);
+      }
+
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('loadingSpinner').classList.remove('hidden');
+      document.getElementById('resultado').innerText = '';
+
+      fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: data
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          document.getElementById('resultado').innerText = '❌ Error: ' + data.error;
+        } else {
+          document.getElementById('resultado').innerText = '✅ Predicción de esperanza de vida: ' + data.prediccion.toFixed(2);
+        }
+      })
+      .catch(() => {
+        document.getElementById('resultado').innerText = '⚠️ Error al conectar con el servidor.';
+      })
+      .finally(() => {
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('loadingSpinner').classList.add('hidden');
+      });
+    }
+  </script>
+</body>
+</html>
