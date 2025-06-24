@@ -9,57 +9,21 @@
 <body class="bg-gray-900 text-white font-sans min-h-screen flex items-center justify-center p-8">
   <div class="w-full max-w-2xl bg-gray-800 rounded-lg shadow-lg p-6">
     <h2 class="text-2xl font-bold mb-4 text-center">Predicción de Esperanza de Vida 🌍</h2>
-    
     <form id="formulario" onsubmit="predecir(event)" class="space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">HIV/AIDS (%)</label>
-          <input name="HIV/AIDS" type="number" step="0.01" min="0" max="100" 
-                 placeholder="Ej: 0.5" class="w-full p-2 rounded bg-gray-700 text-white" required>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium mb-1">Composición de Ingresos (0-1)</label>
-          <input name="Income composition of resources" type="number" step="0.001" min="0" max="1" 
-                 placeholder="Ej: 0.75" class="w-full p-2 rounded bg-gray-700 text-white" required>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium mb-1">Mortalidad Adulta</label>
-          <input name="Adult Mortality" type="number" step="1" min="0" max="1000" 
-                 placeholder="Ej: 150" class="w-full p-2 rounded bg-gray-700 text-white" required>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium mb-1">Años de Escolaridad</label>
-          <input name="Schooling" type="number" step="0.1" min="0" max="25" 
-                 placeholder="Ej: 12.5" class="w-full p-2 rounded bg-gray-700 text-white" required>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium mb-1">Muertes Menores de 5 años</label>
-          <input name="under-five deaths" type="number" step="1" min="0" 
-                 placeholder="Ej: 25" class="w-full p-2 rounded bg-gray-700 text-white" required>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium mb-1">BMI Promedio</label>
-          <input name="BMI" type="number" step="0.1" min="0" max="100" 
-                 placeholder="Ej: 22.5" class="w-full p-2 rounded bg-gray-700 text-white" required>
-        </div>
-      </div>
 
-      <button type="submit" id="submitBtn" 
-              class="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white font-semibold py-2 px-4 rounded transition-colors">
+      <input name="HIV/AIDS" type="number" step="any" placeholder="HIV/AIDS" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="Income composition of resources" type="number" step="any" placeholder="Income composition of resources" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="Adult Mortality" type="number" step="any" placeholder="Adult Mortality" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="Schooling" type="number" step="any" placeholder="Schooling" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="under-five deaths" type="number" step="any" placeholder="under-five deaths" class="w-full p-2 rounded bg-gray-700 text-white" required>
+      <input name="BMI" type="number" step="any" placeholder="BMI" class="w-full p-2 rounded bg-gray-700 text-white" required>
+
+      <button type="submit" id="submitBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
         Predecir
       </button>
 
-      <div id="loadingSpinner" class="hidden mt-2 text-center text-gray-300">
-        <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-        Procesando...
-      </div>
-      
-      <div id="resultado" class="mt-4 text-lg text-center p-3 rounded"></div>
+      <div id="loadingSpinner" class="hidden mt-2 text-center text-gray-300">Procesando...</div>
+      <div id="resultado" class="mt-4 text-lg text-center"></div>
     </form>
   </div>
 
@@ -70,30 +34,13 @@
       const form = document.getElementById('formulario');
       const formData = new FormData(form);
       const data = new URLSearchParams();
-      
-      // Validar que todos los campos estén llenos
-      let allFieldsFilled = true;
       for (const pair of formData) {
-        if (!pair[1] || pair[1].trim() === '') {
-          allFieldsFilled = false;
-          break;
-        }
         data.append(pair[0], pair[1]);
       }
 
-      if (!allFieldsFilled) {
-        document.getElementById('resultado').innerHTML = 
-          '<div class="bg-red-600 text-white p-2 rounded">❌ Por favor, completa todos los campos</div>';
-        return;
-      }
-
-      const submitBtn = document.getElementById('submitBtn');
-      const loadingSpinner = document.getElementById('loadingSpinner');
-      const resultado = document.getElementById('resultado');
-
-      submitBtn.disabled = true;
-      loadingSpinner.classList.remove('hidden');
-      resultado.innerHTML = '';
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('loadingSpinner').classList.remove('hidden');
+      document.getElementById('resultado').innerText = '';
 
       fetch('/predict', {
         method: 'POST',
@@ -103,22 +50,17 @@
       .then(res => res.json())
       .then(data => {
         if (data.error) {
-          resultado.innerHTML = 
-            `<div class="bg-red-600 text-white p-2 rounded">❌ Error: ${data.error}</div>`;
+          document.getElementById('resultado').innerText = '❌ Error: ' + data.error;
         } else {
-          const prediccion = parseFloat(data.prediccion).toFixed(2);
-          resultado.innerHTML = 
-            `<div class="bg-green-600 text-white p-2 rounded">✅ Predicción de esperanza de vida: ${prediccion} años</div>`;
+          document.getElementById('resultado').innerText = '✅ Predicción de esperanza de vida: ' + data.prediccion.toFixed(2);
         }
       })
-      .catch(error => {
-        console.error('Error:', error);
-        resultado.innerHTML = 
-          '<div class="bg-red-600 text-white p-2 rounded">⚠️ Error al conectar con el servidor</div>';
+      .catch(() => {
+        document.getElementById('resultado').innerText = '⚠️ Error al conectar con el servidor.';
       })
       .finally(() => {
-        submitBtn.disabled = false;
-        loadingSpinner.classList.add('hidden');
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('loadingSpinner').classList.add('hidden');
       });
     }
   </script>
