@@ -35,6 +35,15 @@
         <div class="bg-indigo-800 p-2 rounded">
           <strong>Cabina:</strong> Si tenía cabina asignada (indicador de estatus y ubicación en el barco)
         </div>
+        <div class="bg-indigo-800 p-2 rounded">
+          <strong>Puerto:</strong> Puerto de embarque (Southampton, Cherbourg, Queenstown)
+        </div>
+        <div class="bg-indigo-800 p-2 rounded">
+          <strong>Parch:</strong> Número de padres/hijos acompañantes (familias pequeñas sobrevivían mejor)
+        </div>
+        <div class="bg-indigo-800 p-2 rounded">
+          <strong>SibSp:</strong> Número de hermanos/cónyuges (viajar solo o en pareja era mejor)
+        </div>
       </div>
     </div>
 
@@ -126,6 +135,60 @@
           <option value="no">No, sin cabina asignada</option>
         </select>
         <p class="text-xs text-gray-400">💡 Tip: Tener cabina indicaba mejor estatus y ubicación favorable en el barco</p>
+      </div>
+
+      <!-- Campo Puerto de Embarque -->
+      <div class="space-y-2">
+        <label for="embarked" class="block text-sm font-semibold text-cyan-300">
+          ⚓ Puerto de Embarque
+        </label>
+        <select 
+          id="embarked"
+          name="embarked" 
+          class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-cyan-500 focus:outline-none transition-colors" 
+          required>
+          <option value="">Selecciona el puerto</option>
+          <option value="0">Southampton (S)</option>
+          <option value="1">Cherbourg (C)</option>
+          <option value="2">Queenstown (Q)</option>
+        </select>
+        <p class="text-xs text-gray-400">💡 Tip: Southampton era el puerto principal (70% de pasajeros)</p>
+      </div>
+
+      <!-- Campo Padres/Hijos -->
+      <div class="space-y-2">
+        <label for="parch" class="block text-sm font-semibold text-orange-300">
+          👨‍👩‍👧‍👦 Padres/Hijos a Bordo
+        </label>
+        <input 
+          id="parch"
+          name="parch" 
+          type="number" 
+          min="0" 
+          max="10"
+          value="0"
+          placeholder="Número de padres/hijos acompañantes" 
+          class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-orange-500 focus:outline-none transition-colors" 
+          required>
+        <p class="text-xs text-gray-400">💡 Tip: Familias pequeñas tenían mejor probabilidad de supervivencia</p>
+      </div>
+
+      <!-- Campo Hermanos/Cónyuges -->
+      <div class="space-y-2">
+        <label for="sibsp" class="block text-sm font-semibold text-red-300">
+          👫 Hermanos/Cónyuges a Bordo
+        </label>
+        <input 
+          id="sibsp"
+          name="sibsp" 
+          type="number" 
+          min="0" 
+          max="10"
+          value="0"
+          placeholder="Número de hermanos/cónyuges acompañantes" 
+          class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-red-500 focus:outline-none transition-colors" 
+          required>
+        <p class="text-xs text-gray-400">💡 Tip: Viajar solo o en pareja aumentaba las posibilidades de supervivencia</p>
       </div>
 
       <!-- Botones -->
@@ -326,6 +389,9 @@
         document.getElementById('fare').value = '80';
         document.getElementById('pclass').value = '1';
         document.getElementById('cabin').value = 'yes';
+        document.getElementById('embarked').value = '0'; // Southampton
+        document.getElementById('parch').value = '1'; // 1 hijo
+        document.getElementById('sibsp').value = '1'; // 1 cónyuge
       } else if (tipo === 'media') {
         // Ejemplo de supervivencia media (niño, 2ª clase)
         document.getElementById('sex').value = 'male';
@@ -333,6 +399,9 @@
         document.getElementById('fare').value = '15';
         document.getElementById('pclass').value = '2';
         document.getElementById('cabin').value = 'no';
+        document.getElementById('embarked').value = '0'; // Southampton
+        document.getElementById('parch').value = '2'; // 2 padres
+        document.getElementById('sibsp').value = '0'; // Sin hermanos
       } else if (tipo === 'baja') {
         // Ejemplo de baja supervivencia (hombre adulto, 3ª clase)
         document.getElementById('sex').value = 'male';
@@ -340,6 +409,9 @@
         document.getElementById('fare').value = '7.25';
         document.getElementById('pclass').value = '3';
         document.getElementById('cabin').value = 'no';
+        document.getElementById('embarked').value = '0'; // Southampton
+        document.getElementById('parch').value = '0'; // Sin familia
+        document.getElementById('sibsp').value = '0'; // Sin hermanos/cónyuge
       }
       
       const tipoTexto = tipo === 'alta' ? 'alta supervivencia' : 

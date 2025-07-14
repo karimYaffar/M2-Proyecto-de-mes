@@ -13,8 +13,8 @@ scaler = joblib.load('scaler.pkl')
 pca = joblib.load('pca.pkl')
 app.logger.debug('Modelo KNN, scaler y PCA cargados correctamente.')
 
-# Lista de features esperadas para el Titanic
-titanic_features = ['Sex_female', 'Age', 'Fare', 'Pclass', 'Cabin']
+# Lista completa de features que el modelo espera
+titanic_features = ['Sex_female', 'Age', 'Fare', 'Pclass', 'Cabin', 'Embarked', 'Parch', 'Sex_male', 'SibSp']
 
 @app.route('/')
 def home():
@@ -25,13 +25,19 @@ def predict():
     try:
         # Obtener datos del formulario
         sex_female = 1 if request.form['sex'] == 'female' else 0
+        sex_male = 1 if request.form['sex'] == 'male' else 0
         age = float(request.form['age'])
         fare = float(request.form['fare'])
         pclass = int(request.form['pclass'])
         cabin = 1 if request.form['cabin'] == 'yes' else 0
         
+        # Obtener datos adicionales del formulario (nuevos campos)
+        embarked = int(request.form.get('embarked', 0))  # 0=S, 1=C, 2=Q
+        parch = int(request.form.get('parch', 0))  # Número de padres/hijos
+        sibsp = int(request.form.get('sibsp', 0))  # Número de hermanos/cónyuges
+        
         # Crear array con los valores en el orden correcto
-        input_vals = [sex_female, age, fare, pclass, cabin]
+        input_vals = [sex_female, age, fare, pclass, cabin, embarked, parch, sex_male, sibsp]
         
         # Crear DataFrame con nombres de columnas
         input_df = pd.DataFrame([input_vals], columns=titanic_features)
