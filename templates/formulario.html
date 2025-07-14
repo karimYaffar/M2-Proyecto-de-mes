@@ -10,10 +10,23 @@
   <div class="w-full max-w-4xl bg-gray-800 rounded-lg shadow-lg p-6">
     <h2 class="text-3xl font-bold mb-6 text-center">Predicción de Supervivencia del Titanic 🚢</h2>
     
+    <!-- Botón para ver características del modelo -->
+    <div class="mb-4 text-center">
+      <button onclick="mostrarCaracteristicas()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+        🔍 Ver Características del Modelo
+      </button>
+    </div>
+    
+    <!-- Información de características (se llenará dinámicamente) -->
+    <div id="featuresInfo" class="mb-6 p-4 bg-gray-700 rounded-lg text-sm hidden">
+      <h3 class="font-semibold mb-2 text-lg">🔧 Características Cargadas</h3>
+      <div id="featuresDetails"></div>
+    </div>
+    
     <!-- Información general del modelo -->
     <div class="mb-6 p-4 bg-blue-900 rounded-lg text-sm">
       <h3 class="font-semibold mb-2 text-lg">ℹ️ Información del Modelo</h3>
-      <p class="text-gray-300">Este modelo utiliza K-Nearest Neighbors (KNN) con PCA para predecir si un pasajero del Titanic habría sobrevivido al naufragio. Basado en 5 características clave: sexo, edad, tarifa, clase y cabina.</p>
+      <p class="text-gray-300">Este modelo utiliza K-Nearest Neighbors (KNN) con PCA para predecir si un pasajero del Titanic habría sobrevivido al naufragio. Las características se cargan automáticamente desde el archivo de entrenamiento.</p>
     </div>
 
     <!-- Guía de campos -->
@@ -209,20 +222,20 @@
         <div>
           <h4 class="font-semibold text-blue-300 mb-1">Pipeline del Modelo:</h4>
           <ul class="space-y-1">
-            <li>1. Datos de entrada (5 características)</li>
-            <li>2. StandardScaler (normalización)</li>
-            <li>3. PCA (reducción dimensional, 95% varianza)</li>
-            <li>4. KNN (k=7 vecinos)</li>
+            <li>1. Cargar características desde features.pkl</li>
+            <li>2. Reordenar datos: X_new = X_new[features]</li>
+            <li>3. StandardScaler (normalización)</li>
+            <li>4. PCA (reducción dimensional, 95% varianza)</li>
+            <li>5. KNN (k=7 vecinos)</li>
           </ul>
         </div>
         <div>
-          <h4 class="font-semibold text-green-300 mb-1">Características:</h4>
+          <h4 class="font-semibold text-green-300 mb-1">Ventajas:</h4>
           <ul class="space-y-1">
-            <li>• Sex_female: Variable binaria</li>
-            <li>• Age: Variable numérica continua</li>
-            <li>• Fare: Variable numérica continua</li>
-            <li>• Pclass: Variable categórica ordinal</li>
-            <li>• Cabin: Variable binaria</li>
+            <li>• Características exactas del entrenamiento</li>
+            <li>• Orden garantizado por features.pkl</li>
+            <li>• Sin errores de compatibilidad</li>
+            <li>• Pipeline reproducible</li>
           </ul>
         </div>
       </div>
@@ -230,6 +243,33 @@
   </div>
 
   <script>
+    function mostrarCaracteristicas() {
+      fetch('/features')
+        .then(res => res.json())
+        .then(data => {
+          const featuresInfo = document.getElementById('featuresInfo');
+          const featuresDetails = document.getElementById('featuresDetails');
+          
+          let html = `
+            <p class="mb-2"><strong>Características cargadas:</strong> ${data.count}</p>
+            <ul class="text-xs space-y-1 bg-gray-600 p-3 rounded">
+          `;
+          
+          data.features.forEach((feature, index) => {
+            html += `<li>${index + 1}. ${feature}</li>`;
+          });
+          
+          html += '</ul>';
+          
+          featuresDetails.innerHTML = html;
+          featuresInfo.classList.remove('hidden');
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          mostrarResultado('❌ Error obteniendo características del modelo', 'error');
+        });
+    }
+
     function predecir(event) {
       event.preventDefault();
 
@@ -272,6 +312,12 @@
           const mensaje = `${emoji} ${data.message} (${probabilidad}% de probabilidad)`;
           const tipo = data.survived ? 'success' : 'danger';
           mostrarResultado(mensaje, tipo);
+          
+          // Log información de debug
+          if (data.features_used) {
+            console.log('Características usadas:', data.features_used);
+            console.log('Datos de entrada:', data.input_data);
+          }
         }
       })
       .catch(error => {
@@ -311,21 +357,18 @@
 
     function cargarEjemplo(tipo) {
       if (tipo === 'alta') {
-        // Ejemplo de alta supervivencia (mujer, 1ª clase)
         document.getElementById('sex').value = 'female';
         document.getElementById('age').value = '25';
         document.getElementById('fare').value = '80';
         document.getElementById('pclass').value = '1';
         document.getElementById('cabin').value = 'yes';
       } else if (tipo === 'media') {
-        // Ejemplo de supervivencia media (niño, 2ª clase)
         document.getElementById('sex').value = 'male';
         document.getElementById('age').value = '8';
         document.getElementById('fare').value = '15';
         document.getElementById('pclass').value = '2';
         document.getElementById('cabin').value = 'no';
       } else if (tipo === 'baja') {
-        // Ejemplo de baja supervivencia (hombre adulto, 3ª clase)
         document.getElementById('sex').value = 'male';
         document.getElementById('age').value = '35';
         document.getElementById('fare').value = '7.25';

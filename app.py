@@ -7,41 +7,56 @@ import logging
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-# Cargar modelos del Titanic
+# Cargar modelos y características del Titanic
 model = joblib.load('modelo_knn.pkl')
 scaler = joblib.load('scaler.pkl')
 pca = joblib.load('pca.pkl')
-app.logger.debug('Modelo KNN, scaler y PCA cargados correctamente.')
+features = joblib.load('features.pkl')  # Cargar las características exactas
 
-# Características exactas que usaste en el entrenamiento
-features = ['Sex_female', 'Age', 'Fare', 'Pclass', 'Cabin']
+app.logger.debug('Modelo KNN, scaler, PCA y características cargados correctamente.')
+app.logger.info(f'Características cargadas: {features}')
+app.logger.info(f'Número de características: {len(features)}')
 
 @app.route('/')
 def home():
     return render_template('formulario.html')
 
+@app.route('/features')
+def get_features():
+    """Endpoint para obtener las características del modelo"""
+    return jsonify({
+        'features': features,
+        'count': len(features)
+    })
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Obtener datos del formulario
-        sex_female = 1 if request.form['sex'] == 'female' else 0
-        age = float(request.form['age'])
-        fare = float(request.form['fare'])
-        pclass = int(request.form['pclass'])
-        cabin = 1 if request.form['cabin'] == 'yes' else 0
+        # Obtener datos del formulario y crear diccionario completo
+        form_data = {
+            'Sex_female': 1 if request.form['sex'] == 'female' else 0,
+            'Age': float(request.form['age']),
+            'Fare': float(request.form['fare']),
+            'Pclass': int(request.form['pclass']),
+            'Cabin': 1 if request.form['cabin'] == 'yes' else 0
+        }
         
-        # Crear array con los valores en el orden EXACTO del entrenamiento
-        input_vals = [sex_female, age, fare, pclass, cabin]
+        app.logger.debug(f'Datos del formulario: {form_data}')
         
-        # Crear DataFrame con las características exactas
-        X = pd.DataFrame([input_vals], columns=features)
-        app.logger.debug(f'DataFrame creado: {X}')
-        app.logger.debug(f'Columnas: {list(X.columns)}')
-        app.logger.debug(f'Valores: {X.values[0]}')
+        # Crear DataFrame con TODAS las características posibles
+        X_new = pd.DataFrame([form_data])
+        app.logger.debug(f'DataFrame inicial: {X_new}')
+        app.logger.debug(f'Columnas iniciales: {list(X_new.columns)}')
+        
+        # Reordenar/filtrar usando las características exactas del entrenamiento
+        X_new = X_new[features]
+        app.logger.debug(f'DataFrame después de reordenar: {X_new}')
+        app.logger.debug(f'Columnas finales: {list(X_new.columns)}')
+        app.logger.debug(f'Valores finales: {X_new.values[0]}')
 
         # Pipeline exacto: scaler → PCA → modelo
         # 1. Escalar los datos
-        X_scaled = scaler.transform(X)
+        X_scaled = scaler.transform(X_new)
         app.logger.debug(f'Datos escalados - forma: {X_scaled.shape}')
         
         # 2. Aplicar PCA
@@ -62,7 +77,9 @@ def predict():
         return jsonify({
             'survived': survived,
             'probability': probability,
-            'message': 'Sobrevive' if survived else 'No sobrevive'
+            'message': 'Sobrevive' if survived else 'No sobrevive',
+            'features_used': features,
+            'input_data': form_data
         })
     
     except Exception as e:
