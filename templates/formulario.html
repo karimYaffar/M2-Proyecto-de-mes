@@ -13,36 +13,27 @@
     <!-- Información general del modelo -->
     <div class="mb-6 p-4 bg-blue-900 rounded-lg text-sm">
       <h3 class="font-semibold mb-2 text-lg">ℹ️ Información del Modelo</h3>
-      <p class="text-gray-300">Este modelo utiliza K-Nearest Neighbors (KNN) con PCA para predecir si un pasajero del Titanic habría sobrevivido al naufragio. Basado en características como sexo, edad, tarifa pagada, clase del boleto y si tenía cabina asignada.</p>
+      <p class="text-gray-300">Este modelo utiliza K-Nearest Neighbors (KNN) con PCA para predecir si un pasajero del Titanic habría sobrevivido al naufragio. Basado en 5 características clave: sexo, edad, tarifa, clase y cabina.</p>
     </div>
 
     <!-- Guía de campos -->
     <div class="mb-6 p-4 bg-indigo-900 rounded-lg text-sm">
-      <h3 class="font-semibold mb-3 text-lg">📋 Guía de Campos</h3>
+      <h3 class="font-semibold mb-3 text-lg">📋 Características del Modelo</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
         <div class="bg-indigo-800 p-2 rounded">
-          <strong>Sexo:</strong> El género del pasajero (las mujeres tenían mayor probabilidad de supervivencia)
+          <strong>Sex_female:</strong> 1 si es mujer, 0 si es hombre
         </div>
         <div class="bg-indigo-800 p-2 rounded">
-          <strong>Edad:</strong> Edad del pasajero en años (los niños tenían prioridad en los botes salvavidas)
+          <strong>Age:</strong> Edad del pasajero en años
         </div>
         <div class="bg-indigo-800 p-2 rounded">
-          <strong>Tarifa:</strong> Precio pagado por el boleto en libras esterlinas (indicador de clase social)
+          <strong>Fare:</strong> Tarifa pagada por el boleto en libras
         </div>
         <div class="bg-indigo-800 p-2 rounded">
-          <strong>Clase:</strong> Clase del boleto (1ª clase tenía mejor acceso a botes salvavidas)
+          <strong>Pclass:</strong> Clase del boleto (1, 2 o 3)
         </div>
         <div class="bg-indigo-800 p-2 rounded">
-          <strong>Cabina:</strong> Si tenía cabina asignada (indicador de estatus y ubicación en el barco)
-        </div>
-        <div class="bg-indigo-800 p-2 rounded">
-          <strong>Puerto:</strong> Puerto de embarque (Southampton, Cherbourg, Queenstown)
-        </div>
-        <div class="bg-indigo-800 p-2 rounded">
-          <strong>Parch:</strong> Número de padres/hijos acompañantes (familias pequeñas sobrevivían mejor)
-        </div>
-        <div class="bg-indigo-800 p-2 rounded">
-          <strong>SibSp:</strong> Número de hermanos/cónyuges (viajar solo o en pareja era mejor)
+          <strong>Cabin:</strong> 1 si tenía cabina, 0 si no tenía
         </div>
       </div>
     </div>
@@ -63,7 +54,7 @@
           <option value="male">Masculino</option>
           <option value="female">Femenino</option>
         </select>
-        <p class="text-xs text-gray-400">💡 Tip: Las mujeres tenían prioridad en los botes salvavidas ("mujeres y niños primero")</p>
+        <p class="text-xs text-gray-400">💡 Las mujeres tenían prioridad en los botes salvavidas</p>
       </div>
 
       <!-- Campo Edad -->
@@ -81,7 +72,7 @@
           placeholder="Ejemplo: 29.0" 
           class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors" 
           required>
-        <p class="text-xs text-gray-400">💡 Tip: Los niños (menores de 16) tenían mayor probabilidad de supervivencia</p>
+        <p class="text-xs text-gray-400">💡 Los niños tenían mayor probabilidad de supervivencia</p>
       </div>
 
       <!-- Campo Tarifa -->
@@ -96,10 +87,10 @@
           step="0.01" 
           min="0" 
           max="1000"
-          placeholder="Ejemplo: 7.25 (3ª clase) - 512.33 (1ª clase suite)" 
+          placeholder="Ejemplo: 7.25 (3ª clase) - 512.33 (1ª clase)" 
           class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-green-500 focus:outline-none transition-colors" 
           required>
-        <p class="text-xs text-gray-400">💡 Tip: 3ª clase ~£7-15, 2ª clase ~£12-30, 1ª clase ~£30-500+</p>
+        <p class="text-xs text-gray-400">💡 Tarifas más altas = mejor ubicación en el barco</p>
       </div>
 
       <!-- Campo Clase -->
@@ -117,7 +108,7 @@
           <option value="2">2ª Clase (Segunda)</option>
           <option value="3">3ª Clase (Tercera)</option>
         </select>
-        <p class="text-xs text-gray-400">💡 Tip: 1ª clase tenía mejor acceso a cubiertas superiores y botes salvavidas</p>
+        <p class="text-xs text-gray-400">💡 1ª clase tenía mejor acceso a botes salvavidas</p>
       </div>
 
       <!-- Campo Cabina -->
@@ -134,61 +125,7 @@
           <option value="yes">Sí, tenía cabina</option>
           <option value="no">No, sin cabina asignada</option>
         </select>
-        <p class="text-xs text-gray-400">💡 Tip: Tener cabina indicaba mejor estatus y ubicación favorable en el barco</p>
-      </div>
-
-      <!-- Campo Puerto de Embarque -->
-      <div class="space-y-2">
-        <label for="embarked" class="block text-sm font-semibold text-cyan-300">
-          ⚓ Puerto de Embarque
-        </label>
-        <select 
-          id="embarked"
-          name="embarked" 
-          class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-cyan-500 focus:outline-none transition-colors" 
-          required>
-          <option value="">Selecciona el puerto</option>
-          <option value="0">Southampton (S)</option>
-          <option value="1">Cherbourg (C)</option>
-          <option value="2">Queenstown (Q)</option>
-        </select>
-        <p class="text-xs text-gray-400">💡 Tip: Southampton era el puerto principal (70% de pasajeros)</p>
-      </div>
-
-      <!-- Campo Padres/Hijos -->
-      <div class="space-y-2">
-        <label for="parch" class="block text-sm font-semibold text-orange-300">
-          👨‍👩‍👧‍👦 Padres/Hijos a Bordo
-        </label>
-        <input 
-          id="parch"
-          name="parch" 
-          type="number" 
-          min="0" 
-          max="10"
-          value="0"
-          placeholder="Número de padres/hijos acompañantes" 
-          class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-orange-500 focus:outline-none transition-colors" 
-          required>
-        <p class="text-xs text-gray-400">💡 Tip: Familias pequeñas tenían mejor probabilidad de supervivencia</p>
-      </div>
-
-      <!-- Campo Hermanos/Cónyuges -->
-      <div class="space-y-2">
-        <label for="sibsp" class="block text-sm font-semibold text-red-300">
-          👫 Hermanos/Cónyuges a Bordo
-        </label>
-        <input 
-          id="sibsp"
-          name="sibsp" 
-          type="number" 
-          min="0" 
-          max="10"
-          value="0"
-          placeholder="Número de hermanos/cónyuges acompañantes" 
-          class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-red-500 focus:outline-none transition-colors" 
-          required>
-        <p class="text-xs text-gray-400">💡 Tip: Viajar solo o en pareja aumentaba las posibilidades de supervivencia</p>
+        <p class="text-xs text-gray-400">💡 Tener cabina indicaba mejor estatus y ubicación</p>
       </div>
 
       <!-- Botones -->
@@ -202,7 +139,6 @@
         
         <button 
           type="button" 
-          id="clearBtn" 
           onclick="limpiarFormulario()"
           class="flex-1 sm:flex-none bg-gray-600 hover:bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
           🧹 Limpiar Campos
@@ -266,27 +202,27 @@
       </div>
     </div>
 
-    <!-- Información histórica -->
+    <!-- Información técnica -->
     <div class="mt-6 p-4 bg-gray-700 rounded-lg text-sm">
-      <h3 class="font-semibold mb-2 text-lg">📚 Datos Históricos del Titanic</h3>
+      <h3 class="font-semibold mb-2 text-lg">🔧 Información Técnica</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         <div>
-          <h4 class="font-semibold text-blue-300 mb-1">Tasas de Supervivencia:</h4>
+          <h4 class="font-semibold text-blue-300 mb-1">Pipeline del Modelo:</h4>
           <ul class="space-y-1">
-            <li>• 1ª Clase: ~62% sobrevivieron</li>
-            <li>• 2ª Clase: ~47% sobrevivieron</li>
-            <li>• 3ª Clase: ~24% sobrevivieron</li>
-            <li>• Mujeres: ~74% sobrevivieron</li>
-            <li>• Hombres: ~19% sobrevivieron</li>
+            <li>1. Datos de entrada (5 características)</li>
+            <li>2. StandardScaler (normalización)</li>
+            <li>3. PCA (reducción dimensional, 95% varianza)</li>
+            <li>4. KNN (k=7 vecinos)</li>
           </ul>
         </div>
         <div>
-          <h4 class="font-semibold text-green-300 mb-1">Factores Clave:</h4>
+          <h4 class="font-semibold text-green-300 mb-1">Características:</h4>
           <ul class="space-y-1">
-            <li>• Protocolo "mujeres y niños primero"</li>
-            <li>• Ubicación de cabinas (cubierta superior)</li>
-            <li>• Acceso prioritario a botes salvavidas</li>
-            <li>• Capacidad económica para mejores ubicaciones</li>
+            <li>• Sex_female: Variable binaria</li>
+            <li>• Age: Variable numérica continua</li>
+            <li>• Fare: Variable numérica continua</li>
+            <li>• Pclass: Variable categórica ordinal</li>
+            <li>• Cabin: Variable binaria</li>
           </ul>
         </div>
       </div>
@@ -352,7 +288,6 @@
       const resultadoDiv = document.getElementById('resultado');
       resultadoDiv.innerHTML = mensaje;
       
-      // Aplicar estilos según el tipo
       resultadoDiv.className = 'mt-6 text-xl text-center p-4 rounded-lg border-2 ';
       if (tipo === 'success') {
         resultadoDiv.className += 'bg-green-800 text-green-200 border-green-600';
@@ -366,19 +301,12 @@
     }
 
     function limpiarFormulario() {
-      // Limpiar todos los campos del formulario
       document.getElementById('formulario').reset();
-      
-      // Limpiar resultado
       document.getElementById('resultado').innerHTML = '';
-      
-      // Mostrar confirmación
-      mostrarResultado('🧹 Formulario limpiado correctamente. Puedes ingresar nuevos datos.', 'info');
-      
-      // Quitar el mensaje después de 3 segundos
+      mostrarResultado('🧹 Formulario limpiado correctamente.', 'info');
       setTimeout(() => {
         document.getElementById('resultado').innerHTML = '';
-      }, 3000);
+      }, 2000);
     }
 
     function cargarEjemplo(tipo) {
@@ -389,9 +317,6 @@
         document.getElementById('fare').value = '80';
         document.getElementById('pclass').value = '1';
         document.getElementById('cabin').value = 'yes';
-        document.getElementById('embarked').value = '0'; // Southampton
-        document.getElementById('parch').value = '1'; // 1 hijo
-        document.getElementById('sibsp').value = '1'; // 1 cónyuge
       } else if (tipo === 'media') {
         // Ejemplo de supervivencia media (niño, 2ª clase)
         document.getElementById('sex').value = 'male';
@@ -399,9 +324,6 @@
         document.getElementById('fare').value = '15';
         document.getElementById('pclass').value = '2';
         document.getElementById('cabin').value = 'no';
-        document.getElementById('embarked').value = '0'; // Southampton
-        document.getElementById('parch').value = '2'; // 2 padres
-        document.getElementById('sibsp').value = '0'; // Sin hermanos
       } else if (tipo === 'baja') {
         // Ejemplo de baja supervivencia (hombre adulto, 3ª clase)
         document.getElementById('sex').value = 'male';
@@ -409,16 +331,12 @@
         document.getElementById('fare').value = '7.25';
         document.getElementById('pclass').value = '3';
         document.getElementById('cabin').value = 'no';
-        document.getElementById('embarked').value = '0'; // Southampton
-        document.getElementById('parch').value = '0'; // Sin familia
-        document.getElementById('sibsp').value = '0'; // Sin hermanos/cónyuge
       }
       
       const tipoTexto = tipo === 'alta' ? 'alta supervivencia' : 
                        tipo === 'media' ? 'supervivencia media' : 'baja supervivencia';
       mostrarResultado(`📊 Ejemplo de ${tipoTexto} cargado correctamente.`, 'info');
       
-      // Quitar el mensaje después de 2 segundos
       setTimeout(() => {
         document.getElementById('resultado').innerHTML = '';
       }, 2000);

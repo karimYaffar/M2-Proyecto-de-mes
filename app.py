@@ -13,8 +13,8 @@ scaler = joblib.load('scaler.pkl')
 pca = joblib.load('pca.pkl')
 app.logger.debug('Modelo KNN, scaler y PCA cargados correctamente.')
 
-# Lista completa de features que el modelo espera
-titanic_features = ['Sex_female', 'Age', 'Fare', 'Pclass', 'Cabin', 'Embarked', 'Parch', 'Sex_male', 'SibSp']
+# Características exactas que usaste en el entrenamiento
+features = ['Sex_female', 'Age', 'Fare', 'Pclass', 'Cabin']
 
 @app.route('/')
 def home():
@@ -25,37 +25,34 @@ def predict():
     try:
         # Obtener datos del formulario
         sex_female = 1 if request.form['sex'] == 'female' else 0
-        sex_male = 1 if request.form['sex'] == 'male' else 0
         age = float(request.form['age'])
         fare = float(request.form['fare'])
         pclass = int(request.form['pclass'])
         cabin = 1 if request.form['cabin'] == 'yes' else 0
         
-        # Obtener datos adicionales del formulario (nuevos campos)
-        embarked = int(request.form.get('embarked', 0))  # 0=S, 1=C, 2=Q
-        parch = int(request.form.get('parch', 0))  # Número de padres/hijos
-        sibsp = int(request.form.get('sibsp', 0))  # Número de hermanos/cónyuges
+        # Crear array con los valores en el orden EXACTO del entrenamiento
+        input_vals = [sex_female, age, fare, pclass, cabin]
         
-        # Crear array con los valores en el orden correcto
-        input_vals = [sex_female, age, fare, pclass, cabin, embarked, parch, sex_male, sibsp]
-        
-        # Crear DataFrame con nombres de columnas
-        input_df = pd.DataFrame([input_vals], columns=titanic_features)
-        app.logger.debug(f'Data cruda recibida: {input_df}')
+        # Crear DataFrame con las características exactas
+        X = pd.DataFrame([input_vals], columns=features)
+        app.logger.debug(f'DataFrame creado: {X}')
+        app.logger.debug(f'Columnas: {list(X.columns)}')
+        app.logger.debug(f'Valores: {X.values[0]}')
 
-        # Escalar los datos
-        input_scaled = scaler.transform(input_df)
-        app.logger.debug(f'Data escalada: {input_scaled}')
+        # Pipeline exacto: scaler → PCA → modelo
+        # 1. Escalar los datos
+        X_scaled = scaler.transform(X)
+        app.logger.debug(f'Datos escalados - forma: {X_scaled.shape}')
         
-        # Aplicar PCA
-        input_pca = pca.transform(input_scaled)
-        app.logger.debug(f'Data después de PCA: {input_pca}')
+        # 2. Aplicar PCA
+        X_pca = pca.transform(X_scaled)
+        app.logger.debug(f'Datos después de PCA - forma: {X_pca.shape}')
 
-        # Predicción
-        prediction = model.predict(input_pca)
-        prediction_proba = model.predict_proba(input_pca)
+        # 3. Predicción con KNN
+        prediction = model.predict(X_pca)
+        prediction_proba = model.predict_proba(X_pca)
         
-        app.logger.debug(f'Predicción generada: {prediction[0]}')
+        app.logger.debug(f'Predicción: {prediction[0]}')
         app.logger.debug(f'Probabilidades: {prediction_proba[0]}')
 
         # Interpretar resultado
@@ -70,6 +67,8 @@ def predict():
     
     except Exception as e:
         app.logger.error(f'Error en la predicción: {str(e)}')
+        import traceback
+        app.logger.error(f'Traceback completo: {traceback.format_exc()}')
         return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
